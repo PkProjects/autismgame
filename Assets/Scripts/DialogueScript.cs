@@ -23,7 +23,11 @@ public class DialogueScript : MonoBehaviour {
 	void NextQuestion()
 	{
 		var nextQuestion = questions [currentQuestion];
-		mainImage.texture = (Texture) Resources.Load ("imgQuestion" + currentQuestion); //something;
+		if (PlayerPrefs.GetInt("Scenario") == 1){
+			mainImage.texture = (Texture) Resources.Load ("imgQuestion" + currentQuestion); //something;
+		}else if (PlayerPrefs.GetInt("Scenario") == 2){
+			mainImage.texture = (Texture) Resources.Load ("imgQuery" + currentQuestion); //something;
+		}
 		mainQuestionText.text = nextQuestion.mainQuestion;
 		Button1.GetComponentInChildren<Text> ().text = nextQuestion.answerOne;
 		Button2.GetComponentInChildren<Text> ().text = nextQuestion.answerTwo;
