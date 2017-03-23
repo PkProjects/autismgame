@@ -5,12 +5,17 @@ using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour {
 	
-	public void StartButtonClick()
+	public void StartButton1Click()
 	{
 		SceneManager.LoadScene (1);
 	}
 
-	public void OptionsButtonClick()
+    public void StartButton2Click()
+    {
+        SceneManager.LoadScene (2);
+    }
+
+    public void OptionsButtonClick()
 	{
 		Debug.Log ("Yeah this is a work in progress or smt");
 	}
