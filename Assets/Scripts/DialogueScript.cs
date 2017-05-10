@@ -15,7 +15,7 @@ public class DialogueScript : MonoBehaviour {
 	public RawImage mainImage;
 	public Texture something;
 
-	void Start()
+	public void StartConvo()
 	{
 		NextQuestion ();
 	}
@@ -29,9 +29,17 @@ public class DialogueScript : MonoBehaviour {
 			mainImage.texture = (Texture) Resources.Load ("imgQuery" + currentQuestion); //something;
 		}
 		mainQuestionText.text = nextQuestion.mainQuestion;
-		Button1.GetComponentInChildren<Text> ().text = nextQuestion.answerOne;
-		Button2.GetComponentInChildren<Text> ().text = nextQuestion.answerTwo;
-		Button3.GetComponentInChildren<Text> ().text = nextQuestion.answerThree;
+		if (nextQuestion.isQuestion) {
+			Button2.SetActive (true);
+			Button3.SetActive (true);
+			Button1.GetComponentInChildren<Text> ().text = nextQuestion.answerOne;
+			Button2.GetComponentInChildren<Text> ().text = nextQuestion.answerTwo;
+			Button3.GetComponentInChildren<Text> ().text = nextQuestion.answerThree;
+		} else {
+			Button1.GetComponentInChildren<Text> ().text = "Next";
+			Button2.SetActive (false);
+			Button3.SetActive (false);
+		}
 	}
 
 	public void ButtonOneClicked()

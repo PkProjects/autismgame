@@ -4,6 +4,7 @@ using UnityEngine;
 
 [System.Serializable]
 public class QuestionSetup {
+	public bool isQuestion;
 	public string mainQuestion;
 	public string answerOne;
 	public string answerTwo;
