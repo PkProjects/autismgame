@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class DialogueScript : MonoBehaviour {
 
 	public List<QuestionSetup> questions;// = new List<questionSetup> ();
-	public QuestionSetup[] otherquestions;
 	public Text mainQuestionText;
 	public GameObject Button1;
 	public GameObject Button2;
@@ -14,6 +13,14 @@ public class DialogueScript : MonoBehaviour {
 	int currentQuestion = 0;
 	public RawImage mainImage;
 	public Texture something;
+
+	void Start()
+	{
+		Button1 = GameObject.FindWithTag("Button1");	
+		Button2 = GameObject.FindWithTag("Button2");	
+		Button3 = GameObject.FindWithTag("Button3");	
+		mainQuestionText = GameObject.FindWithTag ("MainQuestion").GetComponent<Text>();
+	}
 
 	public void StartConvo()
 	{
@@ -23,11 +30,6 @@ public class DialogueScript : MonoBehaviour {
 	void NextQuestion()
 	{
 		var nextQuestion = questions [currentQuestion];
-		if (PlayerPrefs.GetInt("Scenario") == 1){
-			mainImage.texture = (Texture) Resources.Load ("imgQuestion" + currentQuestion); //something;
-		}else if (PlayerPrefs.GetInt("Scenario") == 2){
-			mainImage.texture = (Texture) Resources.Load ("imgQuery" + currentQuestion); //something;
-		}
 		mainQuestionText.text = nextQuestion.mainQuestion;
 		if (nextQuestion.isQuestion) {
 			Button2.SetActive (true);
