@@ -6,7 +6,8 @@ using UnityEngine;
 public class CharacterSetup 
 {
 	public string charName;
-	public Texture2D charImg;
+	public Texture2D sceneImg;
+	public Texture2D enlargedImg;
 	public int xPos;
 	public int yPos;	
 	public List<QuestionSetup> questions;

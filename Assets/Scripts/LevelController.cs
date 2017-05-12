@@ -11,6 +11,7 @@ public class LevelController : MonoBehaviour {
 	int currentLevel = 0;
 	Camera cam;
 	public GraphicRaycaster GRcaster;
+	public GameObject convoPanel;
 
 	// Use this for initialization
 	void Start () {
@@ -23,8 +24,10 @@ public class LevelController : MonoBehaviour {
 			GameObject tempGO = new GameObject ("Lmao");
 			tempGO.AddComponent<DialogueScript>();
 			tempGO.GetComponent<DialogueScript>().questions = tempChar.questions;
+			tempGO.GetComponent<DialogueScript>().sceneImg = tempChar.sceneImg;
+			tempGO.GetComponent<DialogueScript>().enlargedImg = tempChar.enlargedImg;
 			tempGO.AddComponent<Image>();
-			tempGO.GetComponent<Image> ().sprite = Sprite.Create( tempChar.charImg, new Rect(0f, 0f, tempChar.charImg.width, tempChar.charImg.height), new Vector2(0f, 0f), 100f);
+			tempGO.GetComponent<Image> ().sprite = Sprite.Create( tempChar.sceneImg, new Rect(0f, 0f, tempChar.sceneImg.width, tempChar.sceneImg.height), new Vector2(0f, 0f), 100f);
 
 			tempGO.gameObject.transform.parent = canvas.gameObject.transform;
 			tempGO.gameObject.tag = "Character";
@@ -44,9 +47,12 @@ public class LevelController : MonoBehaviour {
 				if(	target.gameObject.transform.GetComponent<DialogueScript> ()!= null)
 				{
 					Debug.Log ("Clicked a char!");
-					target.gameObject.transform.GetComponent<DialogueScript> ().StartConvo ();
+					convoPanel.SetActive (true);
+					target.gameObject.transform.position = new Vector2 (100f, 100f);
+					DialogueScript tempDia = target.gameObject.GetComponent<DialogueScript> ();
+					target.gameObject.transform.GetComponent<Image> ().sprite = Sprite.Create (tempDia.enlargedImg, new Rect (0f, 0f, tempDia.enlargedImg.width, tempDia.enlargedImg.height), new Vector2 (0f, 0f), 100f);
+					tempDia.StartConvo ();
 				}
-
 			}
 		}
 	}
