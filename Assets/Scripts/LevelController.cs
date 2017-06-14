@@ -12,14 +12,24 @@ public class LevelController : MonoBehaviour {
 	Camera cam;
 	public GraphicRaycaster GRcaster;
 	public GameObject convoPanel;
+	private GameObject levelGO;
 
 	// Use this for initialization
 	void Start () {
 		cam = GameObject.FindWithTag ("MainCamera").GetComponent<Camera> ();
-		var tempLvl = levels [0];
+		BuildLevel (0);
+	}
+
+	void BuildLevel(int level)
+	{
+		currentLevel = level;
+		var tempLvl = levels [level];
 		background.texture = tempLvl.levelBackground;
 		//Debug.Log (tempLvl.characters.Count);
 		var canvas = GameObject.FindWithTag ("mainCanvas");
+		levelGO = new GameObject ("LevelContent");
+		levelGO.transform.SetParent (canvas.gameObject.transform);
+		levelGO.gameObject.transform.localScale = new Vector3 (1f, 1f, 1f);
 		foreach (CharacterSetup tempChar in tempLvl.characters) {
 			GameObject tempGO = new GameObject ("Lmao");
 			tempGO.AddComponent<DialogueScript>();
@@ -31,11 +41,12 @@ public class LevelController : MonoBehaviour {
 			var wRatio = (Screen.width/100) * tempChar.sceneImg.width;
 			var yRatio = (Screen.height/100) * tempChar.yPos;
 			tempGO.gameObject.transform.localScale = new Vector3 (1f, 2f, 1f);
-			tempGO.gameObject.transform.SetParent (canvas.gameObject.transform, false);
+			tempGO.gameObject.transform.SetParent (levelGO.transform, false);
 			tempGO.GetComponent<Image> ().sprite = Sprite.Create( tempChar.sceneImg, new Rect(0f, 0f, tempChar.sceneImg.width , tempChar.sceneImg.height), new Vector2(0f, 0f), 100f);
 
 			tempGO.gameObject.tag = "Character";
 			tempGO.transform.position = new Vector2 (xRatio, yRatio);
+			tempGO.GetComponent<DialogueScript>().originPos = new Vector2 (xRatio, yRatio);
 		}
 		//Debug.Log ("After Loops");
 	}
@@ -51,13 +62,33 @@ public class LevelController : MonoBehaviour {
 				if(	target.gameObject.transform.GetComponent<DialogueScript> ()!= null)
 				{
 					Debug.Log ("Clicked a char!");
-					convoPanel.SetActive (true);
+					//convoPanel.SetActive (true);
 					target.gameObject.transform.position = new Vector2 (100f, 100f);
 					DialogueScript tempDia = target.gameObject.GetComponent<DialogueScript> ();
 					target.gameObject.transform.GetComponent<Image> ().sprite = Sprite.Create (tempDia.enlargedImg, new Rect (0f, 0f, tempDia.enlargedImg.width, tempDia.enlargedImg.height), new Vector2 (0f, 0f), 100f);
-					tempDia.StartConvo ();
+					tempDia.StartConvo (convoPanel);
 				}
 			}
 		}
+	}
+
+	public void SwitchLevel(bool goRight)
+	{
+		Destroy (levelGO);
+		int nextLvl = 0;
+		if (goRight) {
+			if (currentLevel + 1 < levels.Count) {
+				nextLvl = currentLevel + 1;
+			} else {
+				nextLvl = 0;
+			}
+		} else {
+			if (currentLevel - 1 <= 0) {
+				nextLvl = levels.Count - 1;
+			} else {
+				nextLvl = currentLevel - 1;
+			}
+		}
+		BuildLevel (nextLvl);
 	}
 }

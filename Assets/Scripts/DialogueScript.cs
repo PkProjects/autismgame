@@ -7,15 +7,21 @@ public class DialogueScript : MonoBehaviour {
 
 	public List<QuestionSetup> questions;// = new List<questionSetup> ();
 	public Text mainQuestionText;
-	public GameObject Button1;
-	public GameObject Button2;
-	public GameObject Button3;
+	private GameObject Button1;
+	private GameObject Button2;
+	private GameObject Button3;
 	int currentQuestion = 0;
 	public Texture2D sceneImg;
 	public Texture2D enlargedImg;
+	public Vector2 originPos;
+	private GameObject convoPanel;
+	private GameObject activeChar;
 
-	public void StartConvo()
+	public void StartConvo(GameObject panel)
 	{
+		activeChar = this.gameObject;
+		convoPanel = panel;
+		convoPanel.SetActive (true);
 		Button1 = GameObject.FindWithTag("Button1");
 		Button1.GetComponent<Button> ().onClick.AddListener (ButtonOneClicked);
 		Button2 = GameObject.FindWithTag("Button2");	
@@ -28,10 +34,17 @@ public class DialogueScript : MonoBehaviour {
 
 	void NextQuestion()
 	{
-		Debug.Log ("starting question");
+		Debug.Log ("starting question " + currentQuestion);
 		if (currentQuestion >= questions.Count) {
 			Debug.Log ("Fake news");
-			currentQuestion = questions.Count - 1;
+			currentQuestion = 0;
+			activeChar.transform.position = originPos;
+			activeChar.GetComponent<Image> ().sprite = Sprite.Create( sceneImg, new Rect(0f, 0f, sceneImg.width , sceneImg.height), new Vector2(0f, 0f), 100f);
+			Button2.SetActive (true);
+			Button2.GetComponent<Button> ().onClick.RemoveListener (ButtonTwoClicked);
+			Button3.SetActive (true);
+			Button3.GetComponent<Button> ().onClick.RemoveListener (ButtonThreeClicked);
+			convoPanel.SetActive (false);
 			return;
 		}
 		var nextQuestion = questions [currentQuestion];
@@ -59,7 +72,7 @@ public class DialogueScript : MonoBehaviour {
 
 	public void ButtonOneClicked()
 	{
-		Debug.Log ("jwztest");
+		//Debug.Log ("jwztest");
 		currentQuestion = questions [currentQuestion].followUp1;
 		NextQuestion ();
 	}
