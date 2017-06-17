@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Analytics;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems ;
@@ -31,9 +32,10 @@ public class LevelController : MonoBehaviour {
 		levelGO.transform.SetParent (canvas.gameObject.transform);
 		levelGO.gameObject.transform.localScale = new Vector3 (1f, 1f, 1f);
 		foreach (CharacterSetup tempChar in tempLvl.characters) {
-			GameObject tempGO = new GameObject ("Lmao");
+			GameObject tempGO = new GameObject (tempChar.charName);
 			tempGO.AddComponent<DialogueScript>();
 			tempGO.GetComponent<DialogueScript>().questions = tempChar.questions;
+			tempGO.GetComponent<DialogueScript>().charName = tempChar.charName;
 			tempGO.GetComponent<DialogueScript>().sceneImg = tempChar.sceneImg;
 			tempGO.GetComponent<DialogueScript>().enlargedImg = tempChar.enlargedImg;
 			tempGO.AddComponent<Image>();
@@ -74,6 +76,22 @@ public class LevelController : MonoBehaviour {
 
 	public void SwitchLevel(bool goRight)
 	{
+		var charList = GameObject.FindGameObjectsWithTag ("Character");
+		Dictionary<string, object> customDic = new Dictionary<string,object>();
+		foreach (var character in charList) {
+			if (character.GetComponent<DialogueScript> () != null) {
+				var tempDia = character.GetComponent<DialogueScript> ();
+				var answerList = tempDia.getAnswers ();
+				string tempStr = "";
+				foreach (int answer in answerList) {
+					tempStr += answer + ", ";
+				}
+				customDic.Add (tempDia.charName, tempStr);
+			}
+		}
+
+		Analytics.CustomEvent ("switchScene", customDic);
+		convoPanel.SetActive (false);
 		Destroy (levelGO);
 		int nextLvl = 0;
 		if (goRight) {
