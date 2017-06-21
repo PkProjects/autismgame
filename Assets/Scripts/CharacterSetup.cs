@@ -10,5 +10,5 @@ public class CharacterSetup
 	public Texture2D enlargedImg;
 	public int xPos;
 	public int yPos;	
-	public List<QuestionSetup> questions;
+	public List<SequenceSetup> sequence;
 }

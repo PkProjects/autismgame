@@ -7,6 +7,7 @@ public class DialogueScript : MonoBehaviour {
 
 	public List<QuestionSetup> questions;// = new List<questionSetup> ();
 	private List<int> answerLog = new List<int>();
+	private List<string> openAnswers = new List<string>();
 	public string charName;
 	public Text mainQuestionText;
 	private GameObject Button1;
@@ -18,12 +19,17 @@ public class DialogueScript : MonoBehaviour {
 	public Vector2 originPos;
 	private GameObject convoPanel;
 	private GameObject activeChar;
+	public List<SequenceSetup> sequences;
+	private int currentStage = 0;
+	private GameObject inputField;
+	private bool isOpenQuestion;
 
 	public void StartConvo(GameObject panel)
 	{
 		activeChar = this.gameObject;
 		convoPanel = panel;
 		convoPanel.SetActive (true);
+		inputField = GameObject.FindWithTag("InputField");
 		Button1 = GameObject.FindWithTag("Button1");
 		Button1.GetComponent<Button> ().onClick.AddListener (ButtonOneClicked);
 		Button2 = GameObject.FindWithTag ("Button2");
@@ -37,12 +43,12 @@ public class DialogueScript : MonoBehaviour {
 	void NextQuestion()
 	{
 		Debug.Log ("starting question " + currentQuestion);
-		if (currentQuestion >= questions.Count) {
+		if (currentQuestion >= sequences[currentStage].questions.Count) {
 			Debug.Log ("Ending convo");
 			currentQuestion = 0;
 			activeChar.transform.position = originPos;
 			activeChar.GetComponent<Image> ().sprite = Sprite.Create( sceneImg, new Rect(0f, 0f, sceneImg.width , sceneImg.height), new Vector2(0f, 0f), 100f);
-
+			inputField.SetActive (true);
 			Button1.GetComponent<Button> ().onClick.RemoveListener (ButtonOneClicked);
 			Button2.SetActive (true);
 			Button2.GetComponent<Button> ().onClick.RemoveListener (ButtonTwoClicked);
@@ -51,24 +57,32 @@ public class DialogueScript : MonoBehaviour {
 			convoPanel.SetActive (false);
 			return;
 		}
+		questions = sequences [currentStage].questions;
 		var nextQuestion = questions [currentQuestion];
 		mainQuestionText.text = nextQuestion.mainQuestion;
 		if (nextQuestion.isQuestion) {
-			Button1.GetComponentInChildren<Text> ().text = nextQuestion.answerOne;
-			if (nextQuestion.answerTwo != "") {
-				Button2.SetActive (true);
-				Button2.GetComponentInChildren<Text> ().text = nextQuestion.answerTwo;
+			if (nextQuestion.isOpen) {
+				isOpenQuestion = true;
+				inputField.SetActive (true);
 			} else {
-				Button2.SetActive (false);
-			}
-			if (nextQuestion.answerThree != "") {
-				Button3.SetActive (true);
-				Button3.GetComponentInChildren<Text> ().text = nextQuestion.answerThree;
-			} else {
-				Button3.SetActive (false);			
+				inputField.SetActive (false);
+				Button1.GetComponentInChildren<Text> ().text = nextQuestion.answerOne;
+				if (nextQuestion.answerTwo != "") {
+					Button2.SetActive (true);
+					Button2.GetComponentInChildren<Text> ().text = nextQuestion.answerTwo;
+				} else {
+					Button2.SetActive (false);
+				}
+				if (nextQuestion.answerThree != "") {
+					Button3.SetActive (true);
+					Button3.GetComponentInChildren<Text> ().text = nextQuestion.answerThree;
+				} else {
+					Button3.SetActive (false);			
+				}
 			}
 		} else {
 			Button1.GetComponentInChildren<Text> ().text = "Next";
+			inputField.SetActive (false);
 			Button2.SetActive (false);
 			Button3.SetActive (false);
 		}
@@ -77,8 +91,12 @@ public class DialogueScript : MonoBehaviour {
 	public void ButtonOneClicked()
 	{
 		//Debug.Log ("jwztest");
+		if (isOpenQuestion) {
+			openAnswers.Add (inputField.GetComponent<InputField> ().text);
+		} else {
+			answerLog.Add (1);
+		}
 		currentQuestion = questions [currentQuestion].followUp1;
-		answerLog.Add (1);
 		NextQuestion ();
 	}
 
@@ -99,5 +117,10 @@ public class DialogueScript : MonoBehaviour {
 	public List<int> getAnswers()
 	{
 		return answerLog;
+	}
+
+	public List<string> getOpenAnswers()
+	{
+		return openAnswers;
 	}
 }

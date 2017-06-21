@@ -4,6 +4,7 @@ using UnityEngine.Analytics;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems ;
+using UnityEngine.SceneManagement;
 
 public class LevelController : MonoBehaviour {
 
@@ -13,7 +14,10 @@ public class LevelController : MonoBehaviour {
 	Camera cam;
 	public GraphicRaycaster GRcaster;
 	public GameObject convoPanel;
+	public GameObject optionsPanel;
+	private bool optionsActive;
 	private GameObject levelGO;
+	private List<string> clickOrder = new List<string>();
 
 	// Use this for initialization
 	void Start () {
@@ -34,7 +38,7 @@ public class LevelController : MonoBehaviour {
 		foreach (CharacterSetup tempChar in tempLvl.characters) {
 			GameObject tempGO = new GameObject (tempChar.charName);
 			tempGO.AddComponent<DialogueScript>();
-			tempGO.GetComponent<DialogueScript>().questions = tempChar.questions;
+			tempGO.GetComponent<DialogueScript>().sequences = tempChar.sequence;
 			tempGO.GetComponent<DialogueScript>().charName = tempChar.charName;
 			tempGO.GetComponent<DialogueScript>().sceneImg = tempChar.sceneImg;
 			tempGO.GetComponent<DialogueScript>().enlargedImg = tempChar.enlargedImg;
@@ -67,9 +71,19 @@ public class LevelController : MonoBehaviour {
 					//convoPanel.SetActive (true);
 					target.gameObject.transform.position = new Vector2 (100f, 100f);
 					DialogueScript tempDia = target.gameObject.GetComponent<DialogueScript> ();
+					clickOrder.Add ("Clicked " + tempDia.charName);
 					target.gameObject.transform.GetComponent<Image> ().sprite = Sprite.Create (tempDia.enlargedImg, new Rect (0f, 0f, tempDia.enlargedImg.width, tempDia.enlargedImg.height), new Vector2 (0f, 0f), 100f);
 					tempDia.StartConvo (convoPanel);
 				}
+			}
+		}
+		if(Input.GetKeyDown(KeyCode.Escape)){
+			if (optionsActive) {
+				optionsPanel.SetActive (false);
+				optionsActive = false;
+			} else {
+				optionsPanel.SetActive (true);
+				optionsActive = true;
 			}
 		}
 	}
@@ -77,7 +91,7 @@ public class LevelController : MonoBehaviour {
 	public void SwitchLevel(bool goRight)
 	{
 		var charList = GameObject.FindGameObjectsWithTag ("Character");
-		Dictionary<string, object> customDic = new Dictionary<string,object>();
+		Dictionary<string, object> answerDic = new Dictionary<string,object>();
 		foreach (var character in charList) {
 			if (character.GetComponent<DialogueScript> () != null) {
 				var tempDia = character.GetComponent<DialogueScript> ();
@@ -86,11 +100,22 @@ public class LevelController : MonoBehaviour {
 				foreach (int answer in answerList) {
 					tempStr += answer + ", ";
 				}
-				customDic.Add (tempDia.charName, tempStr);
+				answerDic.Add (tempDia.charName + "'s closed", tempStr);
+				var openAnswerList = tempDia.getOpenAnswers ();
+				tempStr = "";
+				foreach (string answer in openAnswerList) {
+					tempStr += answer + ", ";
+				}
+				answerDic.Add (tempDia.charName + "'s open", tempStr);
+
 			}
 		}
-
-		Analytics.CustomEvent ("switchScene", customDic);
+		string orderStr = "";
+		foreach (string click in clickOrder) {
+			orderStr += click + ", ";
+		}
+		answerDic.Add ("ClickOrder", orderStr);
+		Analytics.CustomEvent ("switchScene", answerDic);
 		convoPanel.SetActive (false);
 		Destroy (levelGO);
 		int nextLvl = 0;
@@ -108,5 +133,10 @@ public class LevelController : MonoBehaviour {
 			}
 		}
 		BuildLevel (nextLvl);
+	}
+
+	public void ReturnMain()
+	{
+		SceneManager.LoadScene (0);
 	}
 }
