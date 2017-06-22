@@ -8,6 +8,7 @@ public class DialogueScript : MonoBehaviour {
 	public List<QuestionSetup> questions;// = new List<questionSetup> ();
 	private List<int> answerLog = new List<int>();
 	private List<string> openAnswers = new List<string>();
+	private List<string> timeSpent = new List<string>();
 	public string charName;
 	public Text mainQuestionText;
 	private GameObject Button1;
@@ -24,9 +25,15 @@ public class DialogueScript : MonoBehaviour {
 	private GameObject inputField;
 	private bool isOpenQuestion;
 	public bool isTalking = false;
+	public bool isTeacher = false;
+	private LevelController levelC;
+	public bool convoCompleted;
+	private float oldTime = 0;
 
-	public void StartConvo(GameObject panel)
+	public void StartConvo(GameObject panel, LevelController level)
 	{
+		levelC = level;
+		oldTime = Time.time;
 		activeChar = this.gameObject;
 		convoPanel = panel;
 		convoPanel.SetActive (true);
@@ -44,7 +51,8 @@ public class DialogueScript : MonoBehaviour {
 	public void ResetPanel()
 	{
 		isTalking = false;
-		inputField.SetActive (true);
+		//levelC.convoStarted = false;
+		//inputField.SetActive (true);
 		Button1.GetComponent<Button> ().onClick.RemoveListener (ButtonOneClicked);
 		Button2.SetActive (true);
 		Button2.GetComponent<Button> ().onClick.RemoveListener (ButtonTwoClicked);
@@ -55,13 +63,15 @@ public class DialogueScript : MonoBehaviour {
 
 	void NextQuestion()
 	{
+		oldTime = Time.time;
 		Debug.Log ("starting question " + currentQuestion);
 		if (currentQuestion >= sequences[currentStage].questions.Count) {
 			Debug.Log ("Ending convo");
+			levelC.convoStarted = false;
 			currentQuestion = 0;
 			activeChar.transform.position = originPos;
 			activeChar.GetComponent<Image> ().sprite = Sprite.Create( sceneImg, new Rect(0f, 0f, sceneImg.width , sceneImg.height), new Vector2(0f, 0f), 100f);
-			if (currentStage < sequences.Count) {
+			if (currentStage < sequences.Count - 1) {
 				currentStage++;
 			} else {
 				Debug.Log ("Finished all dialogue for this chracter");
@@ -104,17 +114,21 @@ public class DialogueScript : MonoBehaviour {
 	public void ButtonOneClicked()
 	{
 		//Debug.Log ("jwztest");
+		var questionTime = Time.time - oldTime;
 		if (isOpenQuestion) {
 			openAnswers.Add (inputField.GetComponent<InputField> ().text);
 		} else {
 			answerLog.Add (1);
 		}
+		timeSpent.Add ("" + currentStage + ", " + currentQuestion + ", " + questionTime);
 		currentQuestion = questions [currentQuestion].followUp1;
 		NextQuestion ();
 	}
 
 	public void ButtonTwoClicked()
 	{
+		var questionTime = Time.time - oldTime;
+		timeSpent.Add ("" + currentStage + ", " + currentQuestion + ", " + questionTime);
 		currentQuestion = questions [currentQuestion].followUp2;
 		answerLog.Add (2);
 		NextQuestion ();
@@ -122,6 +136,8 @@ public class DialogueScript : MonoBehaviour {
 
 	public void ButtonThreeClicked()
 	{
+		var questionTime = Time.time - oldTime;
+		timeSpent.Add ("" + currentStage + ", " + currentQuestion + ", " + questionTime);
 		currentQuestion = questions [currentQuestion].followUp3;
 		answerLog.Add (3);
 		NextQuestion ();
@@ -135,5 +151,10 @@ public class DialogueScript : MonoBehaviour {
 	public List<string> getOpenAnswers()
 	{
 		return openAnswers;
+	}
+
+	public List<string> getTimes()
+	{
+		return timeSpent;
 	}
 }
