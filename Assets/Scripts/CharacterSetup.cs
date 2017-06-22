@@ -6,6 +6,7 @@ using UnityEngine;
 public class CharacterSetup 
 {
 	public string charName;
+	public bool isTeacher;
 	public Texture2D sceneImg;
 	public Texture2D enlargedImg;
 	public int xPos;

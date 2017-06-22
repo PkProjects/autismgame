@@ -23,6 +23,7 @@ public class DialogueScript : MonoBehaviour {
 	private int currentStage = 0;
 	private GameObject inputField;
 	private bool isOpenQuestion;
+	public bool isTalking = false;
 
 	public void StartConvo(GameObject panel)
 	{
@@ -40,6 +41,18 @@ public class DialogueScript : MonoBehaviour {
 		NextQuestion ();
 	}
 
+	public void ResetPanel()
+	{
+		isTalking = false;
+		inputField.SetActive (true);
+		Button1.GetComponent<Button> ().onClick.RemoveListener (ButtonOneClicked);
+		Button2.SetActive (true);
+		Button2.GetComponent<Button> ().onClick.RemoveListener (ButtonTwoClicked);
+		Button3.SetActive (true);
+		Button3.GetComponent<Button> ().onClick.RemoveListener (ButtonThreeClicked);
+		convoPanel.SetActive (false);
+	}
+
 	void NextQuestion()
 	{
 		Debug.Log ("starting question " + currentQuestion);
@@ -48,13 +61,13 @@ public class DialogueScript : MonoBehaviour {
 			currentQuestion = 0;
 			activeChar.transform.position = originPos;
 			activeChar.GetComponent<Image> ().sprite = Sprite.Create( sceneImg, new Rect(0f, 0f, sceneImg.width , sceneImg.height), new Vector2(0f, 0f), 100f);
-			inputField.SetActive (true);
-			Button1.GetComponent<Button> ().onClick.RemoveListener (ButtonOneClicked);
-			Button2.SetActive (true);
-			Button2.GetComponent<Button> ().onClick.RemoveListener (ButtonTwoClicked);
-			Button3.SetActive (true);
-			Button3.GetComponent<Button> ().onClick.RemoveListener (ButtonThreeClicked);
-			convoPanel.SetActive (false);
+			if (currentStage < sequences.Count) {
+				currentStage++;
+			} else {
+				Debug.Log ("Finished all dialogue for this chracter");
+			}
+			ResetPanel ();
+			isTalking = false;
 			return;
 		}
 		questions = sequences [currentStage].questions;

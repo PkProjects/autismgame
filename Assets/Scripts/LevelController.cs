@@ -18,6 +18,7 @@ public class LevelController : MonoBehaviour {
 	private bool optionsActive;
 	private GameObject levelGO;
 	private List<string> clickOrder = new List<string>();
+	private bool convoStarted = false;
 
 	// Use this for initialization
 	void Start () {
@@ -65,15 +66,18 @@ public class LevelController : MonoBehaviour {
 			List<RaycastResult> results = new List <RaycastResult> ();
 			GRcaster.Raycast (pointer, results);
 			foreach (RaycastResult target in results) {
-				if(	target.gameObject.transform.GetComponent<DialogueScript> ()!= null)
-				{
-					Debug.Log ("Clicked a char!");
-					//convoPanel.SetActive (true);
-					target.gameObject.transform.position = new Vector2 (100f, 100f);
-					DialogueScript tempDia = target.gameObject.GetComponent<DialogueScript> ();
-					clickOrder.Add ("Clicked " + tempDia.charName);
-					target.gameObject.transform.GetComponent<Image> ().sprite = Sprite.Create (tempDia.enlargedImg, new Rect (0f, 0f, tempDia.enlargedImg.width, tempDia.enlargedImg.height), new Vector2 (0f, 0f), 100f);
-					tempDia.StartConvo (convoPanel);
+				DialogueScript tempDia = target.gameObject.GetComponent<DialogueScript> ();
+				if(	tempDia != null){
+					if (!tempDia.isTalking && !convoStarted) {
+						Debug.Log ("Clicked a char!");
+						tempDia.isTalking = true;
+						convoStarted = true;
+						//convoPanel.SetActive (true);
+						target.gameObject.transform.position = new Vector2 (100f, 100f);
+						clickOrder.Add ("Clicked " + tempDia.charName);
+						target.gameObject.transform.GetComponent<Image> ().sprite = Sprite.Create (tempDia.enlargedImg, new Rect (0f, 0f, tempDia.enlargedImg.width, tempDia.enlargedImg.height), new Vector2 (0f, 0f), 100f);
+						tempDia.StartConvo (convoPanel);
+					}
 				}
 			}
 		}
@@ -90,32 +94,8 @@ public class LevelController : MonoBehaviour {
 
 	public void SwitchLevel(bool goRight)
 	{
-		var charList = GameObject.FindGameObjectsWithTag ("Character");
-		Dictionary<string, object> answerDic = new Dictionary<string,object>();
-		foreach (var character in charList) {
-			if (character.GetComponent<DialogueScript> () != null) {
-				var tempDia = character.GetComponent<DialogueScript> ();
-				var answerList = tempDia.getAnswers ();
-				string tempStr = "";
-				foreach (int answer in answerList) {
-					tempStr += answer + ", ";
-				}
-				answerDic.Add (tempDia.charName + "'s closed", tempStr);
-				var openAnswerList = tempDia.getOpenAnswers ();
-				tempStr = "";
-				foreach (string answer in openAnswerList) {
-					tempStr += answer + ", ";
-				}
-				answerDic.Add (tempDia.charName + "'s open", tempStr);
-
-			}
-		}
-		string orderStr = "";
-		foreach (string click in clickOrder) {
-			orderStr += click + ", ";
-		}
-		answerDic.Add ("ClickOrder", orderStr);
-		Analytics.CustomEvent ("switchScene", answerDic);
+		AnalyticsData ();
+		//GameObject.FindWithTag ("Character").GetComponent<DialogueScript>().ResetPanel();
 		convoPanel.SetActive (false);
 		Destroy (levelGO);
 		int nextLvl = 0;
@@ -133,6 +113,38 @@ public class LevelController : MonoBehaviour {
 			}
 		}
 		BuildLevel (nextLvl);
+	}
+
+	public void AnalyticsData()
+	{
+		var charList = GameObject.FindGameObjectsWithTag ("Character");
+		Dictionary<string, object> answerDic = new Dictionary<string,object>();
+		string tempStr = "";
+		foreach (var character in charList) {
+			if (character.GetComponent<DialogueScript> () != null) {
+				var tempDia = character.GetComponent<DialogueScript> ();
+				tempDia.ResetPanel ();
+				var answerList = tempDia.getAnswers ();
+				tempStr = "";
+				foreach (int answer in answerList) {
+					tempStr += answer + ", ";
+				}
+				answerDic.Add (tempDia.charName + "'s closed", tempStr);
+				var openAnswerList = tempDia.getOpenAnswers ();
+				tempStr = "";
+				foreach (string answer in openAnswerList) {
+					tempStr += answer + ", ";
+				}
+				answerDic.Add (tempDia.charName + "'s open", tempStr);
+
+			}
+		}
+		tempStr = "";
+		foreach (string click in clickOrder) {
+			tempStr += click + ", ";
+		}
+		answerDic.Add ("ClickOrder", tempStr);
+		Analytics.CustomEvent ("switchScene", answerDic);
 	}
 
 	public void ReturnMain()
