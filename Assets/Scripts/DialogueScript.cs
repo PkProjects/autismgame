@@ -52,7 +52,7 @@ public class DialogueScript : MonoBehaviour {
 	{
 		isTalking = false;
 		//levelC.convoStarted = false;
-		//inputField.SetActive (true);
+		inputField.SetActive (true);
 		Button1.GetComponent<Button> ().onClick.RemoveListener (ButtonOneClicked);
 		Button2.SetActive (true);
 		Button2.GetComponent<Button> ().onClick.RemoveListener (ButtonTwoClicked);
