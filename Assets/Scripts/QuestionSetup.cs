@@ -6,6 +6,7 @@ using UnityEngine;
 public class QuestionSetup {
 	public bool isQuestion;
 	public bool isOpen;
+	public bool isLastQuestion;
 	public string mainQuestion;
 	public string answerOne;
 	public string answerTwo;
@@ -13,4 +14,5 @@ public class QuestionSetup {
 	public int followUp1;
 	public int followUp2;
 	public int followUp3;
+	//public AudioSource voiceLine;
 }

@@ -11,7 +11,7 @@ public class LevelController : MonoBehaviour {
 	public List<LevelSetup> levels;
 	public List<GameObject> levelContent = new List<GameObject>();
 	private List<GameObject> characterList = new List<GameObject> ();
-	private List<bool> levelBuilt = new List<bool> ();
+	private bool[] levelExists;
 	public RawImage background;
 	int currentLevel = 0;
 	Camera cam;
@@ -26,12 +26,10 @@ public class LevelController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		levelExists = new bool[levels.Count];
 		cam = GameObject.FindWithTag ("MainCamera").GetComponent<Camera> ();
 		BuildLevel (0);
 		oldTime = Time.time;
-		/*foreach (LevelSetup lvl in levels) {
-			levelBuilt.Add (false);
-		}*/
 	}
 
 	void BuildLevel(int level)
@@ -73,8 +71,7 @@ public class LevelController : MonoBehaviour {
 				tempGO.GetComponent<DialogueScript> ().StartConvo (convoPanel, this);
 			}
 		}
-		//levelBuilt[currentLevel] = true;
-		//Debug.Log ("After Loops");
+		levelExists[currentLevel] = true;
 	}
 	
 	// Update is called once per frame
@@ -89,17 +86,25 @@ public class LevelController : MonoBehaviour {
 				if(	tempDia != null){
 					if (!tempDia.isTalking && !convoStarted) {
 						var charList = GameObject.FindGameObjectsWithTag ("Character");
-						/*if (tempDia.isTeacher) {
-							foreach (var character in charList) {
+						if (tempDia.isTeacher) {
+							int completedCount = 0;
+							foreach (var character in characterList) {
 								if (character.GetComponent<DialogueScript> () != null) {
-									if (character.GetComponent<DialogueScript> ().isTeacher) {
+									/*if (character.GetComponent<DialogueScript> ().isTeacher) {
 										return;
+									}*/
+									if (character.GetComponent<DialogueScript> ().convoCompleted ()) {
+										completedCount++;
 									}
-						}*/
+								}
+							}
+							if (completedCount < characterList.Count - 1) {
+								return;
+							}
+						}
 						Debug.Log ("Clicked a char!");
 						tempDia.isTalking = true;
 						convoStarted = true;
-						//convoPanel.SetActive (true);
 						target.gameObject.transform.position = new Vector2 (100f, 100f);
 						clickOrder.Add ("Clicked " + tempDia.charName);
 						target.gameObject.transform.GetComponent<Image> ().sprite = Sprite.Create (tempDia.enlargedImg, new Rect (0f, 0f, tempDia.enlargedImg.width, tempDia.enlargedImg.height), new Vector2 (0f, 0f), 100f);
@@ -124,11 +129,8 @@ public class LevelController : MonoBehaviour {
 		var levelC = GameObject.Find ("Level" + currentLevel + "Content");
 		AnalyticsData ();
 		convoStarted = false;
-		//GameObject.FindWithTag ("Character").GetComponent<DialogueScript>().ResetPanel();
 		convoPanel.SetActive (false);
-		levelContent.Add (levelGO);
 		levelGO.SetActive (false);
-		//Destroy (levelGO);
 		int nextLvl = 0;
 		if (goRight) {
 			if (currentLevel + 1 < levels.Count) {
@@ -143,19 +145,23 @@ public class LevelController : MonoBehaviour {
 				nextLvl = currentLevel - 1;
 			}
 		}
-		/*if (levelBuilt [nextLvl]) { 
+		if (levelExists [nextLvl]) { 
 			Debug.Log ("Loading lvl" + nextLvl);
 			LoadLevel (nextLvl);
 		} else {
 			Debug.Log ("Building lvl" + nextLvl);
-		}*/
-		BuildLevel (nextLvl);
+			BuildLevel (nextLvl);
+		}
 	}
 
 	void LoadLevel(int level){
+		
+		levelContent[currentLevel].SetActive(false);
 		foreach (var GO in levelContent) {
-			levelContent [level].SetActive (true);
+			Debug.Log (levelContent);
 		}
+
+		levelContent [level].SetActive (true);
 		var tempLvl = levels [level];
 		background.texture = tempLvl.levelBackground;
 		currentLevel = level;
@@ -166,7 +172,6 @@ public class LevelController : MonoBehaviour {
 		var charList = GameObject.FindGameObjectsWithTag ("Character");
 		Dictionary<string, object> answerDic = new Dictionary<string,object>();
 		string tempStr = "";
-		//charList [0].GetComponent<DialogueScript> ().ResetPanel ();
 		foreach (var character in charList) {
 			if (character.GetComponent<DialogueScript> () != null) {
 				var tempDia = character.GetComponent<DialogueScript> ();

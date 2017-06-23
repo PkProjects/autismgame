@@ -27,7 +27,7 @@ public class DialogueScript : MonoBehaviour {
 	public bool isTalking = false;
 	public bool isTeacher = false;
 	private LevelController levelC;
-	public bool convoCompleted;
+	//public bool convoCompleted;
 	private float oldTime = 0;
 
 	public void StartConvo(GameObject panel, LevelController level)
@@ -109,6 +109,7 @@ public class DialogueScript : MonoBehaviour {
 			Button2.SetActive (false);
 			Button3.SetActive (false);
 		}
+		//nextQuestion.voiceLine.Play ();
 	}
 
 	public void ButtonOneClicked()
@@ -141,6 +142,15 @@ public class DialogueScript : MonoBehaviour {
 		currentQuestion = questions [currentQuestion].followUp3;
 		answerLog.Add (3);
 		NextQuestion ();
+	}
+
+	public bool convoCompleted()
+	{
+		if (currentStage >= sequences.Count) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public List<int> getAnswers()
