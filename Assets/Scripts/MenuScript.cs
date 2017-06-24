@@ -7,14 +7,14 @@ public class MenuScript : MonoBehaviour {
 	
 	public void StartButton1Click()
 	{
-		SceneManager.LoadScene (1);
-		PlayerPrefs.SetInt ("Scenario", 1);
+		SceneManager.LoadScene (3);
+		PlayerPrefs.SetInt ("Scenario", 3);
 	}
 
     public void StartButton2Click()
     {
-		SceneManager.LoadScene (2);
-		PlayerPrefs.SetInt ("Scenario", 2);
+		SceneManager.LoadScene (3);
+		PlayerPrefs.SetInt ("Scenario", 3);
     }
 
     public void OptionsButtonClick()
