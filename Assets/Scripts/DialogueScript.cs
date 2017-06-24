@@ -23,12 +23,13 @@ public class DialogueScript : MonoBehaviour {
 	public List<SequenceSetup> sequences;
 	private int currentStage = 0;
 	private GameObject inputField;
-	private bool isOpenQuestion;
+	private bool isOpenQuestion = false;
 	public bool isTalking = false;
 	public bool isTeacher = false;
 	private LevelController levelC;
 	//public bool convoCompleted;
 	private float oldTime = 0;
+	private bool lastQuestion = false;
 
 	public void StartConvo(GameObject panel, LevelController level)
 	{
@@ -50,6 +51,7 @@ public class DialogueScript : MonoBehaviour {
 
 	public void ResetPanel()
 	{
+		ResetCharacter ();
 		isTalking = false;
 		//levelC.convoStarted = false;
 		inputField.SetActive (true);
@@ -61,6 +63,13 @@ public class DialogueScript : MonoBehaviour {
 		convoPanel.SetActive (false);
 	}
 
+	public void ResetCharacter()
+	{
+		activeChar.transform.position = originPos;
+		activeChar.gameObject.transform.localScale = new Vector3 (1f, 2f, 1f);
+		activeChar.GetComponent<Image> ().sprite = Sprite.Create (sceneImg, new Rect (0f, 0f, sceneImg.width, sceneImg.height), new Vector2 (0f, 0f), 100f);
+	}
+
 	void NextQuestion()
 	{
 		oldTime = Time.time;
@@ -69,8 +78,7 @@ public class DialogueScript : MonoBehaviour {
 			Debug.Log ("Ending convo");
 			levelC.convoStarted = false;
 			currentQuestion = 0;
-			activeChar.transform.position = originPos;
-			activeChar.GetComponent<Image> ().sprite = Sprite.Create( sceneImg, new Rect(0f, 0f, sceneImg.width , sceneImg.height), new Vector2(0f, 0f), 100f);
+			ResetCharacter ();
 			if (currentStage < sequences.Count - 1) {
 				currentStage++;
 			} else {
@@ -86,6 +94,7 @@ public class DialogueScript : MonoBehaviour {
 		if (nextQuestion.isQuestion) {
 			if (nextQuestion.isOpen) {
 				isOpenQuestion = true;
+				Button1.GetComponentInChildren<Text> ().text = "Next";
 				inputField.SetActive (true);
 			} else {
 				inputField.SetActive (false);
@@ -109,6 +118,9 @@ public class DialogueScript : MonoBehaviour {
 			Button2.SetActive (false);
 			Button3.SetActive (false);
 		}
+		if (nextQuestion.isLastQuestion) {
+			lastQuestion = true;
+		}
 		//nextQuestion.voiceLine.Play ();
 	}
 
@@ -118,10 +130,16 @@ public class DialogueScript : MonoBehaviour {
 		var questionTime = Time.time - oldTime;
 		if (isOpenQuestion) {
 			openAnswers.Add (inputField.GetComponent<InputField> ().text);
+			isOpenQuestion = false;
 		} else {
 			answerLog.Add (1);
 		}
 		timeSpent.Add ("" + currentStage + ", " + currentQuestion + ", " + questionTime);
+		if (lastQuestion) {
+			Debug.Log ("Restarin pls?");
+			levelC.ReturnMain ();
+			return;
+		}
 		currentQuestion = questions [currentQuestion].followUp1;
 		NextQuestion ();
 	}
@@ -146,7 +164,7 @@ public class DialogueScript : MonoBehaviour {
 
 	public bool convoCompleted()
 	{
-		if (currentStage >= sequences.Count) {
+		if (currentStage >= sequences.Count - 1) {
 			return true;
 		} else {
 			return false;

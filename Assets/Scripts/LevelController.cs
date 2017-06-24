@@ -18,6 +18,7 @@ public class LevelController : MonoBehaviour {
 	public GraphicRaycaster GRcaster;
 	public GameObject convoPanel;
 	public GameObject optionsPanel;
+	public GameObject notCompletedPanel;
 	private bool optionsActive;
 	private GameObject levelGO;
 	private List<string> clickOrder = new List<string>();
@@ -67,6 +68,7 @@ public class LevelController : MonoBehaviour {
 				convoStarted = true;
 				//convoPanel.SetActive (true);
 				tempGO.transform.position = new Vector2 (100f, 100f);
+				tempGO.gameObject.transform.localScale = new Vector3 (2f, 4f, 2f);
 				tempGO.transform.GetComponent<Image> ().sprite = Sprite.Create (tempChar.enlargedImg, new Rect (0f, 0f, tempChar.enlargedImg.width, tempChar.enlargedImg.height), new Vector2 (0f, 0f), 100f);
 				tempGO.GetComponent<DialogueScript> ().StartConvo (convoPanel, this);
 			}
@@ -89,12 +91,21 @@ public class LevelController : MonoBehaviour {
 						if (tempDia.isTeacher) {
 							int completedCount = 0;
 							foreach (var character in characterList) {
+								if (characterList.Count == 1) {
+									Debug.Log ("Only 1 char");
+									notCompletedPanel.SetActive (true);
+									return;
+								}
 								if (character.GetComponent<DialogueScript> () != null) {
 									/*if (character.GetComponent<DialogueScript> ().isTeacher) {
 										return;
 									}*/
 									if (character.GetComponent<DialogueScript> ().convoCompleted ()) {
 										completedCount++;
+										Debug.Log ("Completed count =" + completedCount);
+										if (!notCompletedPanel.activeInHierarchy) {
+											notCompletedPanel.SetActive (true); 
+										}
 									}
 								}
 							}
@@ -106,6 +117,7 @@ public class LevelController : MonoBehaviour {
 						tempDia.isTalking = true;
 						convoStarted = true;
 						target.gameObject.transform.position = new Vector2 (100f, 100f);
+						target.gameObject.transform.localScale = new Vector3 (2f, 4f, 2f);
 						clickOrder.Add ("Clicked " + tempDia.charName);
 						target.gameObject.transform.GetComponent<Image> ().sprite = Sprite.Create (tempDia.enlargedImg, new Rect (0f, 0f, tempDia.enlargedImg.width, tempDia.enlargedImg.height), new Vector2 (0f, 0f), 100f);
 						tempDia.StartConvo (convoPanel, this);
@@ -127,7 +139,8 @@ public class LevelController : MonoBehaviour {
 	public void SwitchLevel(bool goRight)
 	{
 		var levelC = GameObject.Find ("Level" + currentLevel + "Content");
-		AnalyticsData ();
+		//AnalyticsData ();
+		ResetPanel();
 		convoStarted = false;
 		convoPanel.SetActive (false);
 		levelGO.SetActive (false);
@@ -151,6 +164,19 @@ public class LevelController : MonoBehaviour {
 		} else {
 			Debug.Log ("Building lvl" + nextLvl);
 			BuildLevel (nextLvl);
+		}
+	}
+
+	void ResetPanel()
+	{
+		var charList = GameObject.FindGameObjectsWithTag ("Character");
+		foreach (var character in charList) {
+			if (character.GetComponent<DialogueScript> () != null) {
+				var tempDia = character.GetComponent<DialogueScript> ();
+				if (tempDia.isTalking) {
+					tempDia.ResetPanel ();
+				}
+			}
 		}
 	}
 
@@ -210,6 +236,12 @@ public class LevelController : MonoBehaviour {
 
 	public void ReturnMain()
 	{
+		AnalyticsData ();
 		SceneManager.LoadScene (0);
+	}
+
+	public void closeNotCompletedPanel()
+	{
+		notCompletedPanel.SetActive (false);
 	}
 }
