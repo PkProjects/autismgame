@@ -18,12 +18,14 @@ public class LevelController : MonoBehaviour {
 	public GraphicRaycaster GRcaster;
 	public GameObject convoPanel;
 	public GameObject optionsPanel;
+	public GameObject lastNamePanel;
 	public GameObject notCompletedPanel;
 	private bool optionsActive;
 	private GameObject levelGO;
 	private List<string> clickOrder = new List<string>();
 	public bool convoStarted = false;
 	private float oldTime = 0;
+	private string lastName = "";
 
 	// Use this for initialization
 	void Start () {
@@ -118,7 +120,7 @@ public class LevelController : MonoBehaviour {
 						convoStarted = true;
 						target.gameObject.transform.position = new Vector2 (100f, 100f);
 						target.gameObject.transform.localScale = new Vector3 (2f, 4f, 2f);
-						clickOrder.Add ("Clicked " + tempDia.charName);
+						clickOrder.Add (tempDia.charName);
 						target.gameObject.transform.GetComponent<Image> ().sprite = Sprite.Create (tempDia.enlargedImg, new Rect (0f, 0f, tempDia.enlargedImg.width, tempDia.enlargedImg.height), new Vector2 (0f, 0f), 100f);
 						tempDia.StartConvo (convoPanel, this);
 					}
@@ -195,53 +197,67 @@ public class LevelController : MonoBehaviour {
 
 	public void AnalyticsData()
 	{
-		var charList = GameObject.FindGameObjectsWithTag ("Character");
+		foreach (GameObject container in levelContent) {
+			container.SetActive (true);
+		}
 		Dictionary<string, object> answerDic = new Dictionary<string,object>();
 		string tempStr = "";
-		foreach (var character in charList) {
+		var charList = GameObject.FindGameObjectsWithTag ("Character");
+		foreach (GameObject character in charList) {
+			Debug.Log (character);
 			if (character.GetComponent<DialogueScript> () != null) {
 				var tempDia = character.GetComponent<DialogueScript> ();
+				answerDic = new Dictionary<string,object>();
 				if (tempDia.isTalking) {
 					tempDia.ResetPanel ();
 				}
 				var answerList = tempDia.getAnswers ();
-				tempStr = "";
+				tempStr = "" + lastName + " : ";
 				foreach (int answer in answerList) {
 					tempStr += answer + ", ";
 				}
 				answerDic.Add (tempDia.charName + "'s closed", tempStr);
 				var openAnswerList = tempDia.getOpenAnswers ();
-				tempStr = "";
+				tempStr = "" + lastName + " : ";
 				foreach (string answer in openAnswerList) {
 					tempStr += answer + ", ";
 				}
 				answerDic.Add (tempDia.charName + "'s open", tempStr);
 				openAnswerList = tempDia.getTimes();
-				tempStr = "";
+				tempStr = "" + lastName + " : ";
 				foreach (string time in openAnswerList) {
 					tempStr += time + ", ";
 				}
 				answerDic.Add (tempDia.charName + "'s times", tempStr);
+				Analytics.CustomEvent (tempDia.charName + "'s stats", answerDic);
 			}
 		}
-		tempStr = "";
+		answerDic = new Dictionary<string,object>();
+		tempStr = "" + lastName + " :";
 		foreach (string click in clickOrder) {
 			tempStr += click + ", ";
 		}
 		answerDic.Add ("ClickOrder", tempStr);
-		tempStr = "" + (Time.time - oldTime);
+		tempStr = "" + lastName + " : " + (Time.time - oldTime);
 		answerDic.Add ("Level time", tempStr);
-		Analytics.CustomEvent ("switchScene", answerDic);
+		Analytics.CustomEvent ("General Stats", answerDic);
 	}
 
 	public void ReturnMain()
 	{
 		AnalyticsData ();
-		SceneManager.LoadScene (0);
+		//SceneManager.LoadScene (0);
 	}
 
 	public void closeNotCompletedPanel()
 	{
 		notCompletedPanel.SetActive (false);
+	}
+
+	public void SetLastName()
+	{
+		lastName = lastNamePanel.GetComponentInChildren<InputField> ().text;
+		lastNamePanel.SetActive (false);
+		Debug.Log (lastName);
 	}
 }

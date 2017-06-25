@@ -127,7 +127,7 @@ public class DialogueScript : MonoBehaviour {
 	public void ButtonOneClicked()
 	{
 		//Debug.Log ("jwztest");
-		var questionTime = Time.time - oldTime;
+		float questionTime = Mathf.Round((Time.time - oldTime) * 100f) / 100f;
 		if (isOpenQuestion) {
 			openAnswers.Add (inputField.GetComponent<InputField> ().text);
 			isOpenQuestion = false;
