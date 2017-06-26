@@ -30,6 +30,7 @@ public class DialogueScript : MonoBehaviour {
 	//public bool convoCompleted;
 	private float oldTime = 0;
 	private bool lastQuestion = false;
+	private bool isCompleted = false;
 
 	public void StartConvo(GameObject panel, LevelController level)
 	{
@@ -82,6 +83,7 @@ public class DialogueScript : MonoBehaviour {
 			if (currentStage < sequences.Count - 1) {
 				currentStage++;
 			} else {
+				isCompleted = true;
 				Debug.Log ("Finished all dialogue for this chracter");
 			}
 			ResetPanel ();
@@ -164,11 +166,12 @@ public class DialogueScript : MonoBehaviour {
 
 	public bool convoCompleted()
 	{
-		if (currentStage >= sequences.Count - 1) {
+		/*if (currentStage >= sequences.Count - 1) {
 			return true;
 		} else {
 			return false;
-		}
+		}*/
+		return isCompleted;
 	}
 
 	public List<int> getAnswers()

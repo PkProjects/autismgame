@@ -19,7 +19,7 @@ public class LevelController : MonoBehaviour {
 	public GameObject convoPanel;
 	public GameObject optionsPanel;
 	public GameObject lastNamePanel;
-	public GameObject notCompletedPanel;
+	public GameObject genericPanel;
 	private bool optionsActive;
 	private GameObject levelGO;
 	private List<string> clickOrder = new List<string>();
@@ -89,13 +89,19 @@ public class LevelController : MonoBehaviour {
 				DialogueScript tempDia = target.gameObject.GetComponent<DialogueScript> ();
 				if(	tempDia != null){
 					if (!tempDia.isTalking && !convoStarted) {
+						if(tempDia.convoCompleted()){
+							genericPanel.GetComponentInChildren<Text> ().text = tempDia.charName + " heeft niks meer te zeggen!";
+							genericPanel.SetActive (true);
+							return;
+						}
 						var charList = GameObject.FindGameObjectsWithTag ("Character");
 						if (tempDia.isTeacher) {
 							int completedCount = 0;
 							foreach (var character in characterList) {
 								if (characterList.Count == 1) {
 									Debug.Log ("Only 1 char");
-									notCompletedPanel.SetActive (true);
+									genericPanel.GetComponentInChildren<Text> ().text = "Je moet eerst met iedereen praten!";
+									genericPanel.SetActive (true);
 									return;
 								}
 								if (character.GetComponent<DialogueScript> () != null) {
@@ -105,15 +111,17 @@ public class LevelController : MonoBehaviour {
 									if (character.GetComponent<DialogueScript> ().convoCompleted ()) {
 										completedCount++;
 										Debug.Log ("Completed count =" + completedCount);
-										if (!notCompletedPanel.activeInHierarchy) {
-											notCompletedPanel.SetActive (true); 
-										}
 									}
 								}
 							}
 							if (completedCount < characterList.Count - 1) {
+								if (!genericPanel.activeInHierarchy) {
+									genericPanel.GetComponentInChildren<Text> ().text = "Je moet eerst met iedereen praten!";
+									genericPanel.SetActive (true); 
+								}
 								return;
 							}
+
 						}
 						Debug.Log ("Clicked a char!");
 						tempDia.isTalking = true;
@@ -246,12 +254,12 @@ public class LevelController : MonoBehaviour {
 	public void ReturnMain()
 	{
 		AnalyticsData ();
-		//SceneManager.LoadScene (0);
+		SceneManager.LoadScene (0);
 	}
 
 	public void closeNotCompletedPanel()
 	{
-		notCompletedPanel.SetActive (false);
+		genericPanel.SetActive (false);
 	}
 
 	public void SetLastName()
