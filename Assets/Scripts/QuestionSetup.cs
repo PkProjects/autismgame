@@ -14,5 +14,5 @@ public class QuestionSetup {
 	public int followUp1;
 	public int followUp2;
 	public int followUp3;
-	//public AudioSource voiceLine;
+	public AudioClip voiceLine;
 }

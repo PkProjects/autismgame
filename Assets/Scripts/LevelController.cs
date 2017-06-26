@@ -26,9 +26,14 @@ public class LevelController : MonoBehaviour {
 	public bool convoStarted = false;
 	private float oldTime = 0;
 	private string lastName = "";
+	AudioSource audioSrc;
+	public AudioClip bgMusic;
 
 	// Use this for initialization
 	void Start () {
+		audioSrc = this.gameObject.GetComponent<AudioSource> ();
+		audioSrc.clip = bgMusic;
+		audioSrc.Play ();
 		levelExists = new bool[levels.Count];
 		cam = GameObject.FindWithTag ("MainCamera").GetComponent<Camera> ();
 		BuildLevel (0);
@@ -76,7 +81,7 @@ public class LevelController : MonoBehaviour {
 				tempGO.transform.position = new Vector2 (100f, 100f);
 				tempGO.gameObject.transform.localScale = new Vector3 (2f, 4f, 2f);
 				tempGO.transform.GetComponent<Image> ().sprite = Sprite.Create (tempChar.enlargedImg, new Rect (0f, 0f, tempChar.enlargedImg.width, tempChar.enlargedImg.height), new Vector2 (0f, 0f), 100f);
-				tempGO.GetComponent<DialogueScript> ().StartConvo (convoPanel, this);
+				tempGO.GetComponent<DialogueScript> ().StartConvo (convoPanel, this, audioSrc);
 			}
 		}
 		levelExists[currentLevel] = true;
@@ -134,7 +139,7 @@ public class LevelController : MonoBehaviour {
 						target.gameObject.transform.localScale = new Vector3 (2f, 4f, 2f);
 						clickOrder.Add (tempDia.charName);
 						target.gameObject.transform.GetComponent<Image> ().sprite = Sprite.Create (tempDia.enlargedImg, new Rect (0f, 0f, tempDia.enlargedImg.width, tempDia.enlargedImg.height), new Vector2 (0f, 0f), 100f);
-						tempDia.StartConvo (convoPanel, this);
+						tempDia.StartConvo (convoPanel, this, audioSrc);
 					}
 				}
 			}

@@ -2,11 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MenuScript : MonoBehaviour {
 
 	public GameObject panels;
+	AudioSource audioS = new AudioSource();
+	public AudioClip bgMusic;
 	private bool isPanelsActive = false;
+
+	void Start()
+	{
+		audioS = this.gameObject.GetComponent<AudioSource> ();
+		audioS.PlayOneShot (bgMusic);
+	}
 
 	public void StartButton1Click()
 	{

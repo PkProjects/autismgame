@@ -31,9 +31,11 @@ public class DialogueScript : MonoBehaviour {
 	private float oldTime = 0;
 	private bool lastQuestion = false;
 	private bool isCompleted = false;
+	AudioSource audioSrc;
 
-	public void StartConvo(GameObject panel, LevelController level)
+	public void StartConvo(GameObject panel, LevelController level, AudioSource audioS)
 	{
+		audioSrc = audioS;
 		levelC = level;
 		oldTime = Time.time;
 		activeChar = this.gameObject;
@@ -127,7 +129,9 @@ public class DialogueScript : MonoBehaviour {
 		if (nextQuestion.isLastQuestion) {
 			lastQuestion = true;
 		}
-		//nextQuestion.voiceLine.Play ();
+		if (nextQuestion.voiceLine != null) {
+			audioSrc.PlayOneShot(nextQuestion.voiceLine);
+		}
 	}
 
 	public void ButtonOneClicked()
