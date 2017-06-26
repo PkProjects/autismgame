@@ -4,7 +4,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour {
-	
+
+	public GameObject panels;
+	private bool isPanelsActive = false;
+
 	public void StartButton1Click()
 	{
 		SceneManager.LoadScene (3);
@@ -16,6 +19,17 @@ public class MenuScript : MonoBehaviour {
 		SceneManager.LoadScene (3);
 		PlayerPrefs.SetInt ("Scenario", 3);
     }
+
+	public void LevelsButtonClick()
+	{
+		if (isPanelsActive) {
+			panels.SetActive (false);
+			isPanelsActive = false;
+		} else {
+			panels.SetActive (true);
+			isPanelsActive = true;
+		}
+	}
 
     public void OptionsButtonClick()
 	{
