@@ -57,7 +57,11 @@ public class LevelController : MonoBehaviour {
 			var xRatio = (Screen.width / 100) * tempChar.xPos;
 			var wRatio = (Screen.width / 100) * tempChar.sceneImg.width;
 			var yRatio = (Screen.height / 100) * tempChar.yPos;
-			tempGO.gameObject.transform.localScale = new Vector3 (1f, 2f, 1f);
+			if (tempChar.isTeacher) {
+				tempGO.gameObject.transform.localScale = new Vector3 (1.5f, 3f, 1f);
+			} else {
+				tempGO.gameObject.transform.localScale = new Vector3 (1f, 2f, 1f);
+			}
 			tempGO.gameObject.transform.SetParent (levelGO.transform, false);
 			tempGO.GetComponent<Image> ().sprite = Sprite.Create (tempChar.sceneImg, new Rect (0f, 0f, tempChar.sceneImg.width, tempChar.sceneImg.height), new Vector2 (0f, 0f), 100f);
 			tempGO.gameObject.tag = "Character";

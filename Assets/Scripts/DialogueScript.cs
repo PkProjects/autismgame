@@ -67,7 +67,11 @@ public class DialogueScript : MonoBehaviour {
 	public void ResetCharacter()
 	{
 		activeChar.transform.position = originPos;
-		activeChar.gameObject.transform.localScale = new Vector3 (1f, 2f, 1f);
+		if (isTeacher) {
+			activeChar.gameObject.transform.localScale = new Vector3 (1.5f, 3f, 1f);
+		} else {
+			activeChar.gameObject.transform.localScale = new Vector3 (1f, 2f, 1f);
+		}
 		activeChar.GetComponent<Image> ().sprite = Sprite.Create (sceneImg, new Rect (0f, 0f, sceneImg.width, sceneImg.height), new Vector2 (0f, 0f), 100f);
 	}
 
