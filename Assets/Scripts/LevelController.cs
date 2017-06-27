@@ -32,8 +32,8 @@ public class LevelController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		audioSrc = this.gameObject.GetComponent<AudioSource> ();
-		audioSrc.clip = bgMusic;
-		audioSrc.Play ();
+		//audioSrc.clip = bgMusic;
+		//audioSrc.Play ();
 		levelExists = new bool[levels.Count];
 		cam = GameObject.FindWithTag ("MainCamera").GetComponent<Camera> ();
 		BuildLevel (0);

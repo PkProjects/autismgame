@@ -151,6 +151,7 @@ public class DialogueScript : MonoBehaviour {
 			return;
 		}
 		currentQuestion = questions [currentQuestion].followUp1;
+		audioSrc.Stop ();
 		NextQuestion ();
 	}
 
@@ -160,6 +161,7 @@ public class DialogueScript : MonoBehaviour {
 		timeSpent.Add ("" + currentStage + ", " + currentQuestion + ", " + questionTime);
 		currentQuestion = questions [currentQuestion].followUp2;
 		answerLog.Add (2);
+		audioSrc.Stop ();
 		NextQuestion ();
 	}
 
@@ -169,6 +171,7 @@ public class DialogueScript : MonoBehaviour {
 		timeSpent.Add ("" + currentStage + ", " + currentQuestion + ", " + questionTime);
 		currentQuestion = questions [currentQuestion].followUp3;
 		answerLog.Add (3);
+		audioSrc.Stop ();
 		NextQuestion ();
 	}
 
