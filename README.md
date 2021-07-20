@@ -1,2 +1,2 @@
 # autismgame
-game for artistic kids
+game for autistic kids
